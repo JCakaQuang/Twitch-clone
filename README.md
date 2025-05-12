@@ -1,4 +1,4 @@
-# Youtube-clone
+# Twitch-clone
 Bài tập lớn môn kỹ thuật phần mềm nhóm 4
 
 # Thành Viên
