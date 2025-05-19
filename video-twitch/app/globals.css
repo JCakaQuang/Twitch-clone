@@ -3,7 +3,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Define CSS custom properties for theming */
 :root {
   /* Light mode variables */
   --background: #ffffff;
