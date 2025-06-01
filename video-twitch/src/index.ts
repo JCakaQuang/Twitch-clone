@@ -11,23 +11,23 @@ async function main() {
     }
   });
 
-  // Thêm user
-  await db.insert(usersTable).values({
-    name: 'John',
-    age: 30,
-    email: 'john@example.com'
-  });
-  console.log('User created!');
+  // // Thêm user
+  // await db.insert(usersTable).values({
+  //   name: 'John',
+  //   age: 30,
+  //   email: 'john@example.com'
+  // });
+  // console.log('User created!');
 
   // Đọc user
   const users = await db.select().from(usersTable);
   console.log('All users:', users);
 
-  // Cập nhật user
-  await db.update(usersTable)
-    .set({ age: 31 })
-    .where(eq(usersTable.email, 'john@example.com'));
-  console.log('User updated!');
+  // // Cập nhật user
+  // await db.update(usersTable)
+  //   .set({ age: 31 })
+  //   .where(eq(usersTable.email, 'john@example.com'));
+  // console.log('User updated!');
 
   // Xóa user
 //   await db.delete(usersTable)
