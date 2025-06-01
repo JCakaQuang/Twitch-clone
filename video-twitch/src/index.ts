@@ -1,37 +1,19 @@
-import 'dotenv/config';
 import { drizzle } from 'drizzle-orm/libsql';
-import { usersTable } from './db/schema';
-import { eq } from 'drizzle-orm';
+import { createClient } from '@libsql/client';
 
-async function main() {
-  const db = drizzle({
-    connection: {
-      url: process.env.TURSO_DATABASE_URL!,
-      authToken: process.env.TURSO_AUTH_TOKEN!
-    }
-  });
-
-  // // Thêm user
-  // await db.insert(usersTable).values({
-  //   name: 'John',
-  //   age: 30,
-  //   email: 'john@example.com'
-  // });
-  // console.log('User created!');
-
-  // Đọc user
-  const users = await db.select().from(usersTable);
-  console.log('All users:', users);
-
-  // // Cập nhật user
-  // await db.update(usersTable)
-  //   .set({ age: 31 })
-  //   .where(eq(usersTable.email, 'john@example.com'));
-  // console.log('User updated!');
-
-  // Xóa user
-//   await db.delete(usersTable)
-//     .where(eq(usersTable.email, 'john@example.com'));
-//   console.log('User deleted!');
+// Declare a global type for the Turso client to avoid multiple instances
+declare global {
+  var tursoClient: ReturnType<typeof createClient> | undefined;
 }
-main();
+
+// Create the Turso client, reusing it in development to prevent multiple connections
+const client = globalThis.tursoClient || createClient({
+  url: process.env.TURSO_DATABASE_URL!,
+  authToken: process.env.TURSO_AUTH_TOKEN!,
+});
+
+// In non-production environments, store the client in globalThis to reuse it
+if (process.env.NODE_ENV !== 'production') globalThis.tursoClient = client;
+
+// Export the drizzle instance with the Turso client
+export const db = drizzle(client);
