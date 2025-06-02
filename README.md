@@ -11,18 +11,18 @@ Twitch-clone là một ứng dụng web mô phỏng nền tảng livestream Twit
 </br>
 
 ### Công nghệ sử dụng: 
-Framework: Next.js 14 (App Router)
-Cơ sở dữ liệu: Turso (SQLite edge database)
-ORM: Drizzle ORM
-Authentication: NextAuth.js
-TypeScript, TailwindCSS, Shadcn/ui
+# Framework: Next.js 14 (App Router)
+# Cơ sở dữ liệu: Turso (SQLite edge database)
+# ORM: Drizzle ORM
+# Authentication: NextAuth.js
+# TypeScript, TailwindCSS, Shadcn/ui
 
 ### Tính năng chính
-Đăng ký / Đăng nhập (OAuth2 hoặc Email/Password)
-Xem danh sách kênh đang phát trực tiếp
-Xem video livestream và trò chuyện trực tiếp (chat realtime)
-Quản lý kênh livestream của người dùng
-Giao diện UI thân thiện, tương thích trên nhiều thiết bị
+# Đăng ký / Đăng nhập (OAuth2 hoặc Email/Password)
+# Xem danh sách kênh đang phát trực tiếp
+# Xem video livestream và trò chuyện trực tiếp (chat realtime)
+# Quản lý kênh livestream của người dùng
+# Giao diện UI thân thiện, tương thích trên nhiều thiết bị
 
 ### Hướng dẫn cài đặt
 ## Clone dự án:
