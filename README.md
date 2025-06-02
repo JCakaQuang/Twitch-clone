@@ -1,60 +1,57 @@
-### Twitch-clone
-### Mô tả dự án
-Twitch-clone là một ứng dụng web mô phỏng nền tảng livestream Twitch, cho phép người dùng xem các kênh phát trực tiếp, tương tác và trao đổi với cộng đồng qua chat. Dự án được phát triển nhằm mục đích học tập trong môn Kỹ Thuật Phần Mềm, giúp sinh viên thực hành quy trình phát triển phần mềm và nâng cao kỹ năng lập trình web.
+# Twitch Clone
 
-### Thành viên nhóm:
-<a href="https://github.com/miin000"> Phạm Quang Minh - 23010489 </a>
-</br>
-<a href="https://github.com/JCakaQuang"> Nguyễn Văn Quang - 23011955 </a>
-</br>
-<a href="https://github.com/Lqdat28072005"> Lê Quang Đạt - 23010201 </a>
-</br>
+## 📌 Project Description
 
-# Công nghệ sử dụng: 
-Framework: Next.js 14 (App Router)
-</br>
-Cơ sở dữ liệu: Turso (SQLite edge database)
-</br>
-ORM: Drizzle ORM
-</br>
-Authentication: NextAuth.js
-</br>
-TypeScript, TailwindCSS, Shadcn/ui
+**Twitch Clone** is a web application that simulates the livestream platform Twitch. It allows users to watch live channels, interact, and chat with the community.  
+This project was developed for educational purposes in the Software Engineering course, helping students practice the software development process and enhance their web programming skills.
 
-# Tính năng chính
-Đăng ký / Đăng nhập (OAuth2 hoặc Email/Password)
-</br>
-Xem danh sách kênh đang phát trực tiếp
-</br>
-Xem video livestream và trò chuyện trực tiếp (chat realtime)
-</br>
-Quản lý kênh livestream của người dùng
-</br>
-Giao diện UI thân thiện, tương thích trên nhiều thiết bị
+## 👥 Team Members
 
-# Hướng dẫn cài đặt
-## Clone dự án:
-```
+- [Phạm Quang Minh - 23010489](https://github.com/miin000)  
+- [Nguyễn Văn Quang - 23011955](https://github.com/JCakaQuang)  
+- [Lê Quang Đạt - 23010201](https://github.com/Lqdat28072005)  
+
+## 🛠️ Technologies Used
+
+- **Framework**: Next.js 14 (App Router)  
+- **Database**: Turso (SQLite edge database)  
+- **ORM**: Drizzle ORM  
+- **Authentication**: NextAuth.js  
+- **Others**: TypeScript, TailwindCSS, Shadcn/ui  
+
+## 🚀 Main Features
+
+- User registration and login (OAuth2 or Email/Password)  
+- View list of currently live streaming channels  
+- Watch livestreams and chat in real time  
+- Manage personal livestream channels  
+- Responsive, user-friendly interface across devices  
+
+## ⚙️ Installation Guide
+
+### 1. Clone the Repository
+
+```bash
 git clone https://github.com/your-team-name/twitch-clone.git
 cd twitch-clone
 ```
 
-## Cài đặt dependencies:
+## Install Dependencies
 ```
 npm install
 ```
 
-## Cấu hình môi trường:
-### Tạo tệp .env.local và cấu hình như sau:
+## Configure Environment Variables
+Create a .env.local file in the root directory and add the following:
 ```
 DATABASE_URL="file:./db.sqlite"
 NEXTAUTH_SECRET=your-secret-key
 NEXTAUTH_URL=http://localhost:3000
 ```
-## Khởi chạy:
+## Run the Application
 ```
 npm run dev
 ngrok http --url=diverse-bursting-boxer.ngrok-free.app 3000
 ```
 
-## Truy cập: https://diverse-bursting-boxer.ngrok-free.app
+## Access the Application: https://diverse-bursting-boxer.ngrok-free.app
