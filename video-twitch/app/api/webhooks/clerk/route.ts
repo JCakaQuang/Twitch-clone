@@ -3,6 +3,7 @@ import { headers } from 'next/headers';
 import { WebhookEvent } from '@clerk/nextjs/server';
 import { db } from '@/src';
 import { usersTable } from '@/src/db/schema';
+import { eq } from 'drizzle-orm';
 
 export async function POST(req: Request) {
   const WEBHOOK_SECRET = process.env.CLERK_WEBHOOK_SECRET;
@@ -81,6 +82,55 @@ export async function POST(req: Request) {
     } catch (err) {
       console.error('Error inserting user into Turso database:', err);
       return new Response('Failed to insert user into database', { status: 500 });
+    }
+  }
+  if (type === 'user.updated') {
+    try {
+      const userData = payload.data;
+      console.log('Clerk user update data:', userData); // Log the payload to inspect its structure
+
+      // Validate required fields
+      const id = userData.id;
+      const externalUserId = userData.id;
+      const username = userData.username ?? 'unknown';
+      const imageUrl = userData.image_url ?? '';
+
+      if (!id || !externalUserId) {
+        throw new Error('Missing required fields (id or externalUserId) in Clerk payload');
+      }
+
+      // Update in Turso database
+      await db.update(usersTable).set({
+        username,
+        imageUrl,
+      }).where(eq(usersTable.externalUserId, externalUserId));
+
+      console.log('User successfully updated in Turso database:', { id, username });
+    } catch (err) {
+      console.error('Error updating user in Turso database:', err);
+      return new Response('Failed to update user in database', { status: 500 });
+    }
+  }
+  if (type === 'user.deleted') {
+    try {
+      const userData = payload.data;
+      console.log('Clerk user deletion data:', userData); // Log the payload to inspect its structure
+
+      // Validate required fields
+      const id = userData.id;
+      const externalUserId = userData.id;
+
+      if (!id || !externalUserId) {
+        throw new Error('Missing required fields (id or externalUserId) in Clerk payload');
+      }
+
+      // Delete from Turso database
+      await db.delete(usersTable).where(eq(usersTable.externalUserId, externalUserId));
+
+      console.log('User successfully deleted from Turso database:', { id });
+    } catch (err) {
+      console.error('Error deleting user from Turso database:', err);
+      return new Response('Failed to delete user from database', { status: 500 });
     }
   }
 
