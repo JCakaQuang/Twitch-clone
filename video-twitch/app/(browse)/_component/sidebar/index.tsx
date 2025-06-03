@@ -17,9 +17,12 @@ export const Sidebar = async () => {
       <div className="space-y-4 pt-4 lg:pt-0">
         {/* <Following data={following} />
         <Recommended data={recommended} /> */}
-        <p>For you</p>
+      </div>
+      <div>
+        Sidebar!
       </div>
     </Wrapper>
+
   );
 };
 

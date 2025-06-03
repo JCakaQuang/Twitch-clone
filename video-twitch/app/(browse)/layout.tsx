@@ -14,7 +14,7 @@ const BrowseLayout = ({
                 <Container>
                     {children}
                 </Container>
-
+                <Sidebar/>
             </div>
         </>
     );
