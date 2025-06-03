@@ -3,8 +3,8 @@ import { notFound } from "next/navigation";
 
 import { getUserByUsername } from "@/lib/user-service";
 import { isFollowingUser } from "@/lib/follow-service";
-import { isBlockedByUser } from "@/lib/block-service";
-import { StreamPlayer } from "@/components/stream-player";
+// import { isBlockedByUser } from "@/lib/block-service";
+// import { StreamPlayer } from "@/components/stream-player";
 
 interface UserPageProps {
   params: { username: string };
@@ -26,12 +26,12 @@ export default async function UserPage({
   if (!user || !user.stream) notFound();
 
   const isFollowing = await isFollowingUser(user.id);
-  const isBlocked = await isBlockedByUser(user.id);
+  // const isBlocked = await isBlockedByUser(user.id);
 
-  if (isBlocked) notFound();
+  // if (isBlocked) notFound();
 
-  return (
-    <StreamPlayer user={user} isFollowing={isFollowing} stream={user.stream} />
-  );
+  // return (
+  //   <StreamPlayer user={user} isFollowing={isFollowing} stream={user.stream} />
+  // );
 }
 

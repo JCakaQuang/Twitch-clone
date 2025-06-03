@@ -1,45 +1,67 @@
-import { db } from "@/lib/db";
+import { db } from "@/src";
+import { users, streams, follows } from "@/src/db/schema";
+import { eq } from "drizzle-orm";
 
 export const getUserByUsername = async (username: string) => {
-  const user = await db.user.findUnique({
-    where: {
-      username,
-    },
-    select: {
-      id: true,
-      externalUserId: true,
-      username: true,
-      bio: true,
-      imageUrl: true,
+  const userRows = await db
+    .select({
+      id: users.id,
+      externalUserId: users.externalUserId,
+      username: users.username,
+      bio: users.bio,
+      imageUrl: users.imageUrl,
       stream: {
-        select: {
-          id: true,
-          isLive: true,
-          isChatDelayed: true,
-          isChatEnabled: true,
-          isChatFollowersOnly: true,
-          thumbnailUrl: true,
-          name: true,
-        },
+        id: streams.id,
+        isLive: streams.isLive,
+        isChatDelayed: streams.isChatDelayed,
+        isChatEnabled: streams.isChatEnabled,
+        isChatFollowersOnly: streams.isChatFollowersOnly,
+        thumbnailUrl: streams.thumbnailUrl,
+        name: streams.name,
       },
-      _count: {
-        select: {
-          followedBy: true,
-        },
-      },
-    },
-  });
+    })
+    .from(users)
+    .leftJoin(streams, eq(users.id, streams.userId))
+    .where(eq(users.username, username));
 
-  return user;
+  const countFollowedBy = await db
+    .select()
+    .from(follows)
+    .where(eq(follows.followingId, userRows[0]?.id || ""))
+    .then((rows) => rows.length);
+
+  if (userRows.length === 0) return null;
+
+  return {
+    ...userRows[0],
+    _count: {
+      followedBy: countFollowedBy,
+    },
+  };
 };
 
 export const getUserById = async (id: string) => {
-  const user = await db.user.findUnique({
-    where: {
-      id,
-    },
-    include: { stream: true },
-  });
+  const userRows = await db
+    .select({
+      id: users.id,
+      externalUserId: users.externalUserId,
+      username: users.username,
+      bio: users.bio,
+      imageUrl: users.imageUrl,
+      stream: {
+        id: streams.id,
+        isLive: streams.isLive,
+        isChatDelayed: streams.isChatDelayed,
+        isChatEnabled: streams.isChatEnabled,
+        isChatFollowersOnly: streams.isChatFollowersOnly,
+        thumbnailUrl: streams.thumbnailUrl,
+        name: streams.name,
+      },
+    })
+    .from(users)
+    .leftJoin(streams, eq(users.id, streams.userId))
+    .where(eq(users.id, id));
 
-  return user;
+  return userRows[0] || null;
 };
+

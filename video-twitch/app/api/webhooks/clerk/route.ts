@@ -2,7 +2,7 @@ import { Webhook } from 'svix';
 import { headers } from 'next/headers';
 import { WebhookEvent } from '@clerk/nextjs/server';
 import { db } from '@/src';
-import { usersTable } from '@/src/db/schema';
+import { users } from '@/src/db/schema';
 import { eq } from 'drizzle-orm';
 
 export async function POST(req: Request) {
@@ -70,7 +70,7 @@ export async function POST(req: Request) {
       }
 
       // Insert into Turso database
-      await db.insert(usersTable).values({
+      await db.insert(users).values({
         id,
         externalUserId,
         username,
@@ -100,10 +100,10 @@ export async function POST(req: Request) {
       }
 
       // Update in Turso database
-      await db.update(usersTable).set({
+      await db.update(users).set({
         username,
         imageUrl,
-      }).where(eq(usersTable.externalUserId, externalUserId));
+      }).where(eq(users.externalUserId, externalUserId));
 
       console.log('User successfully updated in Turso database:', { id, username });
     } catch (err) {
@@ -125,7 +125,7 @@ export async function POST(req: Request) {
       }
 
       // Delete from Turso database
-      await db.delete(usersTable).where(eq(usersTable.externalUserId, externalUserId));
+      await db.delete(users).where(eq(users.externalUserId, externalUserId));
 
       console.log('User successfully deleted from Turso database:', { id });
     } catch (err) {
