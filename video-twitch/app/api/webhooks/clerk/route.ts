@@ -57,43 +57,51 @@ export async function POST(req: Request) {
   if (type === 'user.created') {
     try {
       const userData = payload.data;
-      console.log('Clerk user data:', userData); // Log the payload to inspect its structure
+      console.log('Clerk user data:', userData); // Log để kiểm tra cấu trúc payload
 
       // Validate required fields
       const id = userData.id;
       const externalUserId = userData.id;
-      const username = userData.username ?? 'unknown';
+      const username = userData.username ?? 'unknown-' + id; // Đảm bảo username duy nhất
       const imageUrl = userData.image_url ?? '';
+      const email = userData.email_addresses?.[0]?.email_address ?? 'no-email-' + id; // Lấy email từ payload
+      const currentTime = new Date(); // Thời gian hiện tại cho createdAt và updatedAt
 
-      if (!id || !externalUserId) {
-        throw new Error('Missing required fields (id or externalUserId) in Clerk payload');
+      if (!id || !externalUserId || !email) {
+        throw new Error('Missing required fields (id, externalUserId, or email) in Clerk payload');
       }
 
       // Insert into Turso database
       await db.insert(users).values({
-        id,
+        id, // Dùng 'id' thay vì '_id' để khớp với kiểu TypeScript
         externalUserId,
         username,
         imageUrl,
-        bio: '', // Optional field, default to empty string
+        email,
+        bio: userData.bio ?? '', // Lấy bio nếu có, mặc định rỗng
+        createdAt: currentTime,
+        updatedAt: currentTime,
       });
 
-      console.log('User successfully inserted into Turso database:', { id, username });
+      console.log('User successfully inserted into Turso database:', { id, username, email });
     } catch (err) {
       console.error('Error inserting user into Turso database:', err);
       return new Response('Failed to insert user into database', { status: 500 });
     }
   }
+
   if (type === 'user.updated') {
     try {
       const userData = payload.data;
-      console.log('Clerk user update data:', userData); // Log the payload to inspect its structure
+      console.log('Clerk user update data:', userData); // Log để kiểm tra cấu trúc payload
 
       // Validate required fields
       const id = userData.id;
       const externalUserId = userData.id;
-      const username = userData.username ?? 'unknown';
+      const username = userData.username ?? 'unknown-' + id;
       const imageUrl = userData.image_url ?? '';
+      const email = userData.email_addresses?.[0]?.email_address ?? 'no-email-' + id;
+      const currentTime = new Date(); // Thời gian hiện tại cho updatedAt
 
       if (!id || !externalUserId) {
         throw new Error('Missing required fields (id or externalUserId) in Clerk payload');
@@ -103,18 +111,22 @@ export async function POST(req: Request) {
       await db.update(users).set({
         username,
         imageUrl,
+        email,
+        bio: userData.bio ?? '',
+        updatedAt: currentTime,
       }).where(eq(users.externalUserId, externalUserId));
 
-      console.log('User successfully updated in Turso database:', { id, username });
+      console.log('User successfully updated in Turso database:', { id, username, email });
     } catch (err) {
       console.error('Error updating user in Turso database:', err);
       return new Response('Failed to update user in database', { status: 500 });
     }
   }
+
   if (type === 'user.deleted') {
     try {
       const userData = payload.data;
-      console.log('Clerk user deletion data:', userData); // Log the payload to inspect its structure
+      console.log('Clerk user deletion data:', userData); // Log để kiểm tra cấu trúc payload
 
       // Validate required fields
       const id = userData.id;
