@@ -16,21 +16,29 @@ export const getRecommended = async () => {
   let recommendedUsers = [];
 
   if (userId) {
-    // Lấy danh sách following và blocking
+    // Lấy danh sách following
     const following = await db
       .select({ followingId: follows.followingId })
       .from(follows)
       .where(eq(follows.followerId, userId));
 
-    const blocked = await db
+    // Lấy danh sách người dùng bị bạn block
+    const blockedByYou = await db
       .select({ blockedId: blockings.blockedId })
       .from(blockings)
       .where(eq(blockings.blockerId, userId));
 
-    const followingIds = following.map((f) => f.followingId);
-    const blockedIds = blocked.map((b) => b.blockedId);
+    // Lấy danh sách người dùng block bạn
+    const blockedYou = await db
+      .select({ blockerId: blockings.blockerId })
+      .from(blockings)
+      .where(eq(blockings.blockedId, userId));
 
-    // Lọc users không phải bản thân, không bị follow, không bị block
+    const followingIds = following.map((f) => f.followingId);
+    const blockedByYouIds = blockedByYou.map((b) => b.blockedId);
+    const blockedYouIds = blockedYou.map((b) => b.blockerId);
+
+    // Lọc users không phải bản thân, không bị follow, không bị block (cả hai chiều)
     recommendedUsers = await db
       .select({
         id: users.id,
@@ -44,12 +52,13 @@ export const getRecommended = async () => {
       .where(
         and(
           ne(users.id, userId),
-          notInArray(users.id, [...followingIds, ...blockedIds])
+          notInArray(users.id, [...followingIds, ...blockedByYouIds, ...blockedYouIds])
         )
       )
-      .orderBy(desc(users.createdAt));
+      .orderBy(desc(users.createdAt))
+      .limit(10); // Thêm limit để tối ưu hiệu suất
   } else {
-    // Nếu chưa đăng nhập → lấy toàn bộ
+    // Nếu chưa đăng nhập → lấy toàn bộ, không cần kiểm tra block
     recommendedUsers = await db
       .select({
         id: users.id,
@@ -60,7 +69,8 @@ export const getRecommended = async () => {
       })
       .from(users)
       .leftJoin(streams, eq(users.id, streams.userId))
-      .orderBy(desc(users.createdAt));
+      .orderBy(desc(users.createdAt))
+      .limit(10); // Thêm limit để tối ưu hiệu suất
   }
 
   return recommendedUsers.map((u) => ({

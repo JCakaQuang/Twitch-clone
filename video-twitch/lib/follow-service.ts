@@ -1,11 +1,26 @@
 import { db } from "@/src";
-import { eq, not, exists, and } from "drizzle-orm";
+import { eq, not, exists, and, notInArray } from "drizzle-orm";
 import { follows, users, blockings } from "@/src/db/schema";
 import { getSelf } from "@/lib/auth-service";
 
 export const getFollowedUser = async () => {
   try {
     const self = await getSelf();
+
+    // Lấy danh sách người dùng bị bạn block
+    const blockedByYou = await db
+      .select({ blockedId: blockings.blockedId })
+      .from(blockings)
+      .where(eq(blockings.blockerId, self.id));
+
+    // Lấy danh sách người dùng block bạn
+    const blockedYou = await db
+      .select({ blockerId: blockings.blockerId })
+      .from(blockings)
+      .where(eq(blockings.blockedId, self.id));
+
+    const blockedByYouIds = blockedByYou.map((b) => b.blockedId);
+    const blockedYouIds = blockedYou.map((b) => b.blockerId);
 
     const followedUsers = await db
       .select({
@@ -17,19 +32,7 @@ export const getFollowedUser = async () => {
       .where(
         and(
           eq(follows.followerId, self.id),
-          not(
-            exists(
-              db
-                .select()
-                .from(blockings)
-                .where(
-                  and(
-                    eq(blockings.blockedId, self.id),
-                    eq(blockings.blockerId, follows.followingId)
-                  )
-                )
-            )
-          )
+          notInArray(follows.followingId, [...blockedByYouIds, ...blockedYouIds])
         )
       );
 
