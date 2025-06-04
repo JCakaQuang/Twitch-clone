@@ -5,6 +5,8 @@ import { and, desc, eq, ne, notInArray } from "drizzle-orm";
 import { UserWithStream } from "@/lib/types";
 
 export const getRecommended = async (): Promise<UserWithStream[]> => {
+  await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate delay
+
   let userId: string | null = null;
 
   try {

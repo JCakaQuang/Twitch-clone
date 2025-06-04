@@ -2,7 +2,7 @@ import { getRecommended } from "@/lib/recommended-service";
 // import { getFollowedUsers } from "@/lib/follow-service";
 
 import { Wrapper } from "./wrapper";
-import { Toggle } from "./toggle";
+import { Toggle, ToggleSkeleton } from "./toggle";
 // import { Following, FollowingSkeleton } from "./following";
 import { Recommended, RecommendedSkeleton } from "./recommended";
 
@@ -25,6 +25,7 @@ export const SidebarSkeleton = () => {
   return (
     <aside className="fixed left-0 flex flex-col w-[70px] lg:w-60 h-full bg-background border-r border-[#2D2E35] z-50">
       {/* <FollowingSkeleton /> */}
+      <ToggleSkeleton />
       <RecommendedSkeleton />
     </aside>
   );
