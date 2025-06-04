@@ -67,7 +67,7 @@ export const getRecommended = async () => {
     id: u.id,
     username: u.username,
     imageUrl: u.imageUrl,
-    createdAt: u.createdAt,
+    createdAt: u.createdAt.getTime(),
     stream: u.streamIsLive !== null && u.streamIsLive !== undefined
       ? { isLive: Boolean(u.streamIsLive) }
       : null,
