@@ -1,25 +1,22 @@
 "use client";
 
-import React from "react";
-import { usePathname } from "next/navigation";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useSidebar } from "@/store/use-sidebar";
+import { Skeleton } from "@/components/ui/skeleton";
 import { UserAvatar } from "@/components/user-avatar";
 import { LiveBadge } from "@/components/live-badge";
 
-export function UserItem({
-  username,
-  imageUrl,
-  isLive,
-}: {
+interface UserItemProps {
   username: string;
   imageUrl: string;
   isLive?: boolean;
-}) {
+}
+
+export const UserItem = ({ username, imageUrl, isLive }: UserItemProps) => {
   const pathname = usePathname();
 
   const { collapsed } = useSidebar((state) => state);
@@ -33,7 +30,7 @@ export function UserItem({
       variant="ghost"
       className={cn(
         "w-full h-12",
-        collapsed ? "justify-center" : "justify-start",
+        collapsed ? "justify-center" : "justfy-start",
         isActive && "bg-accent"
       )}
     >
@@ -51,9 +48,9 @@ export function UserItem({
       </Link>
     </Button>
   );
-}
+};
 
-export function UserItemSkeleton() {
+export const UserItemSkeleton = () => {
   return (
     <li className="flex items-center gap-x-4 px-3 py-2">
       <Skeleton className="min-h-[32px] min-w-[32px] rounded-full" />
@@ -62,4 +59,4 @@ export function UserItemSkeleton() {
       </div>
     </li>
   );
-}
+};

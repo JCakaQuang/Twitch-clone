@@ -59,6 +59,12 @@ export function UserAvatar({
   );
 }
 
-export function UserAvatarSkeleton({ size }: UserAvatarSkeletonProps) {
-  return <Skeleton className={cn("rounded-full", avatarSizes({ size }))} />;
+export const UserAvatarSkeleton = ({
+   size 
+  }: UserAvatarSkeletonProps) =>{
+    return ( 
+      <Skeleton className={cn("rounded-full",
+         avatarSizes({ size }), 
+      )}/>
+    );
 }
