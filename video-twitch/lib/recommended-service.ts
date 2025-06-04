@@ -2,23 +2,21 @@ import { db } from "@/src";
 import { getSelf } from "@/lib/auth-service";
 import { users, streams, follows, blockings } from "@/src/db/schema";
 import { and, desc, eq, ne, notInArray } from "drizzle-orm";
-import { UserWithStream } from "@/lib/types";
 
-export const getRecommended = async (): Promise<UserWithStream[]> => {
-  await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate delay
-
+export const getRecommended = async () => {
   let userId: string | null = null;
 
   try {
     const self = await getSelf();
     userId = self.id;
   } catch {
-    userId = null;
+    // Chưa đăng nhập
   }
 
-  let usersList;
+  let recommendedUsers = [];
 
   if (userId) {
+    // Lấy danh sách following và blocking
     const following = await db
       .select({ followingId: follows.followingId })
       .from(follows)
@@ -32,7 +30,8 @@ export const getRecommended = async (): Promise<UserWithStream[]> => {
     const followingIds = following.map((f) => f.followingId);
     const blockedIds = blocked.map((b) => b.blockedId);
 
-    usersList = await db
+    // Lọc users không phải bản thân, không bị follow, không bị block
+    recommendedUsers = await db
       .select({
         id: users.id,
         username: users.username,
@@ -45,14 +44,13 @@ export const getRecommended = async (): Promise<UserWithStream[]> => {
       .where(
         and(
           ne(users.id, userId),
-          followingIds.length > 0 || blockedIds.length > 0
-            ? notInArray(users.id, [...followingIds, ...blockedIds])
-            : undefined
+          notInArray(users.id, [...followingIds, ...blockedIds])
         )
       )
       .orderBy(desc(users.createdAt));
   } else {
-    usersList = await db
+    // Nếu chưa đăng nhập → lấy toàn bộ
+    recommendedUsers = await db
       .select({
         id: users.id,
         username: users.username,
@@ -65,14 +63,13 @@ export const getRecommended = async (): Promise<UserWithStream[]> => {
       .orderBy(desc(users.createdAt));
   }
 
-  return usersList.map((u) => ({
+  return recommendedUsers.map((u) => ({
     id: u.id,
     username: u.username,
     imageUrl: u.imageUrl,
-    createdAt: u.createdAt instanceof Date ? u.createdAt.getTime() : u.createdAt,
-    stream:
-      u.streamIsLive !== undefined && u.streamIsLive !== null
-        ? { isLive: u.streamIsLive === 1 }
-        : null,
+    createdAt: u.createdAt,
+    stream: u.streamIsLive !== null && u.streamIsLive !== undefined
+      ? { isLive: Boolean(u.streamIsLive) }
+      : null,
   }));
 };

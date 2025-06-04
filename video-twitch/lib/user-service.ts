@@ -16,21 +16,21 @@ export const getUserByUsername = async (username: string) => {
         isChatDelayed: streams.isChatDelayed,
         isChatEnabled: streams.isChatEnabled,
         isChatFollowersOnly: streams.isChatFollowersOnly,
-        thumbnailUrl: streams.thumbnailUrl,
-        name: streams.name,
+        thumbnailUrl: streams.thumbnail,
       },
     })
     .from(users)
     .leftJoin(streams, eq(users.id, streams.userId))
     .where(eq(users.username, username));
 
+  // nếu không tìm thấy user
+  if (userRows.length === 0) return null;
+
   const countFollowedBy = await db
     .select()
     .from(follows)
-    .where(eq(follows.followingId, userRows[0]?.id || ""))
+    .where(eq(follows.followingId, userRows[0].id))
     .then((rows) => rows.length);
-
-  if (userRows.length === 0) return null;
 
   return {
     ...userRows[0],
@@ -39,6 +39,7 @@ export const getUserByUsername = async (username: string) => {
     },
   };
 };
+
 
 export const getUserById = async (id: string) => {
   const userRows = await db
@@ -54,8 +55,7 @@ export const getUserById = async (id: string) => {
         isChatDelayed: streams.isChatDelayed,
         isChatEnabled: streams.isChatEnabled,
         isChatFollowersOnly: streams.isChatFollowersOnly,
-        thumbnailUrl: streams.thumbnailUrl,
-        name: streams.name,
+        thumbnailUrl: streams.thumbnail,
       },
     })
     .from(users)

@@ -3,7 +3,7 @@ import { headers } from 'next/headers';
 import { WebhookEvent } from '@clerk/nextjs/server';
 import { db } from '@/src';
 import { users } from '@/src/db/schema';
-import { eq } from 'drizzle-orm';
+import { eq, or } from 'drizzle-orm';
 
 export async function POST(req: Request) {
   const WEBHOOK_SECRET = process.env.CLERK_WEBHOOK_SECRET;
@@ -62,23 +62,48 @@ export async function POST(req: Request) {
       // Validate required fields
       const id = userData.id;
       const externalUserId = userData.id;
-      const username = userData.username ?? 'unknown-' + id; // Đảm bảo username duy nhất
+      let username = userData.username ?? 'user-' + id; // Giá trị mặc định
       const imageUrl = userData.image_url ?? '';
-      const email = userData.email_addresses?.[0]?.email_address ?? 'no-email-' + id; // Lấy email từ payload
-      const currentTime = new Date(); // Thời gian hiện tại cho createdAt và updatedAt
+      const email = userData.email_addresses?.[0]?.email_address ?? 'no-email-' + id;
+      const currentTime = new Date();
 
       if (!id || !externalUserId || !email) {
         throw new Error('Missing required fields (id, externalUserId, or email) in Clerk payload');
       }
 
+      // Kiểm tra xem externalUserId, email hoặc username đã tồn tại chưa
+      const existingUser = await db
+        .select({ id: users.id, username: users.username })
+        .from(users)
+        .where(
+          or(
+            eq(users.externalUserId, externalUserId),
+            eq(users.email, email),
+            eq(users.username, username)
+          )
+        )
+        .limit(1);
+
+      if (existingUser.length > 0) {
+        // Nếu username đã tồn tại, tạo username duy nhất
+        if (existingUser[0].username === username) {
+          username = `${username}-${id.slice(-6)}`; // Thêm hậu tố từ id
+        }
+        // Nếu externalUserId hoặc email đã tồn tại, bỏ qua hoặc cập nhật
+        if (existingUser[0].id === id || existingUser[0].id) {
+          console.log('User already exists, skipping insert:', { id, username });
+          return new Response('User already exists', { status: 200 });
+        }
+      }
+
       // Insert into Turso database
       await db.insert(users).values({
-        id, // Dùng 'id' thay vì '_id' để khớp với kiểu TypeScript
+        id,
         externalUserId,
         username,
         imageUrl,
         email,
-        bio: userData.bio ?? '', // Lấy bio nếu có, mặc định rỗng
+        bio: userData.bio ?? '',
         createdAt: currentTime,
         updatedAt: currentTime,
       });
@@ -98,13 +123,24 @@ export async function POST(req: Request) {
       // Validate required fields
       const id = userData.id;
       const externalUserId = userData.id;
-      const username = userData.username ?? 'unknown-' + id;
+      let username = userData.username ?? 'user-' + id;
       const imageUrl = userData.image_url ?? '';
       const email = userData.email_addresses?.[0]?.email_address ?? 'no-email-' + id;
-      const currentTime = new Date(); // Thời gian hiện tại cho updatedAt
+      const currentTime = new Date();
 
       if (!id || !externalUserId) {
         throw new Error('Missing required fields (id or externalUserId) in Clerk payload');
+      }
+
+      // Kiểm tra xem username đã tồn tại cho người dùng khác chưa
+      const existingUser = await db
+        .select({ id: users.id })
+        .from(users)
+        .where(eq(users.username, username))
+        .limit(1);
+
+      if (existingUser.length > 0 && existingUser[0].id !== id) {
+        username = `${username}-${id.slice(-6)}`; // Tạo username duy nhất
       }
 
       // Update in Turso database

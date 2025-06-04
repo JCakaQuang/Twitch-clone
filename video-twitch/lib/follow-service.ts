@@ -74,21 +74,35 @@ export const followUser = async (id: string) => {
 
   if (already.length > 0) throw new Error("You are already following this user");
 
+  const newFollowId = randomUUID();
+
   await db.insert(follows).values({
-    id: randomUUID(),
+    id: newFollowId,
     followerId: self.id,
     followingId: id,
+    createdAt: new Date(),
+    updatedAt: new Date(),
   });
 
-  return { success: true };
-};
+  // Lấy thông tin người vừa được follow
+  const [user] = await db
+    .select()
+    .from(users)
+    .where(eq(users.id, id))
+    .limit(1);
 
+  return {
+    followingId: user, // để giống cấu trúc Prisma
+    followerId: self,
+  };
+};
 
 export const unfollowUser = async (id: string) => {
   const self = await getSelf();
 
   if (id === self.id) throw new Error("You can't unfollow yourself");
 
+  // Kiểm tra tồn tại follow
   const follow = await db
     .select()
     .from(follows)
@@ -97,8 +111,21 @@ export const unfollowUser = async (id: string) => {
 
   if (follow.length === 0) throw new Error("You are not following this user");
 
+  // Lấy thông tin người dùng được unfollow
+  const [user] = await db
+    .select()
+    .from(users)
+    .where(eq(users.id, id))
+    .limit(1);
+
+  // Xóa record follow
   await db.delete(follows).where(eq(follows.id, follow[0].id));
 
-  return { success: true };
+  // Trả về để tái tạo lại cấu trúc tương tự Prisma
+  return {
+    following: user,
+  };
 };
+
+
 
