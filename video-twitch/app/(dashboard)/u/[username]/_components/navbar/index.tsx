@@ -1,0 +1,11 @@
+import { Logo } from "./logo";
+import { Actions } from "./actions";
+
+export const Navbar = () => {
+  return (
+    <nav className="fixed mr-0 top-0 left-0 w-full h-20 bg-[#252731] z-49 px-2 lg:px-4 flex items-center justify-between shadow-md">
+      <Logo />
+      <Actions />
+    </nav>
+  );
+};
