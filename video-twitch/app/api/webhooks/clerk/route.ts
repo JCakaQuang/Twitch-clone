@@ -2,7 +2,7 @@ import { Webhook } from 'svix';
 import { headers } from 'next/headers';
 import { WebhookEvent } from '@clerk/nextjs/server';
 import { db } from '@/src';
-import { users } from '@/src/db/schema';
+import { users, streams } from '@/src/db/schema';
 import { eq, or } from 'drizzle-orm';
 
 export async function POST(req: Request) {
@@ -57,12 +57,11 @@ export async function POST(req: Request) {
   if (type === 'user.created') {
     try {
       const userData = payload.data;
-      console.log('Clerk user data:', userData); // Log để kiểm tra cấu trúc payload
+      console.log('Clerk user data:', userData);
 
-      // Validate required fields
       const id = userData.id;
       const externalUserId = userData.id;
-      let username = userData.username ?? 'user-' + id; // Giá trị mặc định
+      let username = userData.username ?? 'user-' + id;
       const imageUrl = userData.image_url ?? '';
       const email = userData.email_addresses?.[0]?.email_address ?? 'no-email-' + id;
       const currentTime = new Date();
@@ -71,7 +70,6 @@ export async function POST(req: Request) {
         throw new Error('Missing required fields (id, externalUserId, or email) in Clerk payload');
       }
 
-      // Kiểm tra xem externalUserId, email hoặc username đã tồn tại chưa
       const existingUser = await db
         .select({ id: users.id, username: users.username })
         .from(users)
@@ -85,18 +83,16 @@ export async function POST(req: Request) {
         .limit(1);
 
       if (existingUser.length > 0) {
-        // Nếu username đã tồn tại, tạo username duy nhất
         if (existingUser[0].username === username) {
-          username = `${username}-${id.slice(-6)}`; // Thêm hậu tố từ id
+          username = `${username}-${id.slice(-6)}`;
         }
-        // Nếu externalUserId hoặc email đã tồn tại, bỏ qua hoặc cập nhật
         if (existingUser[0].id === id || existingUser[0].id) {
           console.log('User already exists, skipping insert:', { id, username });
           return new Response('User already exists', { status: 200 });
         }
       }
 
-      // Insert into Turso database
+      // Insert user
       await db.insert(users).values({
         id,
         externalUserId,
@@ -108,12 +104,30 @@ export async function POST(req: Request) {
         updatedAt: currentTime,
       });
 
-      console.log('User successfully inserted into Turso database:', { id, username, email });
+      // Insert stream
+      await db.insert(streams).values({
+        id: crypto.randomUUID(), // tự sinh id (nếu bạn không có generator trong schema)
+        title: `${username}'s stream`,
+        thumbnail: null,
+        ingressId: null,
+        serverUrl: null,
+        streamKey: null,
+        isLive: 0,
+        isChatEnabled: 1,
+        isChatDelayed: 0,
+        isChatFollowersOnly: 0,
+        userId: id,
+        createdAt: currentTime,
+        updatedAt: currentTime,
+      });
+
+      console.log('User + Stream successfully inserted into Turso database:', { id, username, email });
     } catch (err) {
-      console.error('Error inserting user into Turso database:', err);
-      return new Response('Failed to insert user into database', { status: 500 });
+      console.error('Error inserting user or stream into Turso database:', err);
+      return new Response('Failed to insert user or stream into database', { status: 500 });
     }
   }
+
 
   if (type === 'user.updated') {
     try {
