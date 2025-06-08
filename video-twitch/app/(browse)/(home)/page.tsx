@@ -1,28 +1,13 @@
-'use client'
+import { Suspense } from "react";
 
-import {
-  SignInButton,
-  SignUpButton,
-  SignedIn,
-  SignedOut,
-  UserButton,
-} from '@clerk/nextjs'
+import { Results, ResultsSkeleton } from "./_components/results";
 
-export default function HomePage() {
+export default function Page() {
   return (
-    <main>
-      <header className="flex justify-end items-center p-4 gap-4 h-16">
-        <SignedOut>
-          <SignInButton />
-          <SignUpButton />
-        </SignedOut>
-        <SignedIn>
-          <UserButton />
-        </SignedIn>
-      </header>
-      <section>
-
-      </section>
-    </main>
-  )
+    <div className="h-full p-8 max-w-screen-2xl mx-auto">
+      <Suspense fallback={<ResultsSkeleton />}>
+        <Results />
+      </Suspense>
+    </div>
+  );
 }

@@ -19,12 +19,22 @@ export const getStreams = async () => {
     result = await db
       .select({
         id: streams.id,
-        user: streams.userId,
         isLive: streams.isLive,
         title: streams.title,
         thumbnail: streams.thumbnail,
+        user: {
+          id: users.id,
+          email: users.email,
+          username: users.username,
+          imageUrl: users.imageUrl,
+          externalUserId: users.externalUserId,
+          bio: users.bio,
+          createdAt: users.createdAt,
+          updatedAt: users.updatedAt,
+        }
       })
       .from(streams)
+      .innerJoin(users, eq(streams.userId, users.id))
       .where(
         not(
           exists(
@@ -45,14 +55,28 @@ export const getStreams = async () => {
     result = await db
       .select({
         id: streams.id,
-        user: streams.userId,
         isLive: streams.isLive,
         title: streams.title,
         thumbnail: streams.thumbnail,
+        user: {
+          id: users.id,
+          email: users.email,
+          username: users.username,
+          imageUrl: users.imageUrl,
+          externalUserId: users.externalUserId,
+          bio: users.bio,
+          createdAt: users.createdAt,
+          updatedAt: users.updatedAt,
+        }
       })
       .from(streams)
+      .innerJoin(users, eq(streams.userId, users.id))
       .orderBy(desc(streams.isLive), desc(streams.updatedAt));
   }
 
-  return result;
+  // Chuyển đổi isLive từ number (0/1) sang boolean (false/true)
+  return result.map(stream => ({
+    ...stream,
+    isLive: Boolean(stream.isLive),
+  }));
 };
