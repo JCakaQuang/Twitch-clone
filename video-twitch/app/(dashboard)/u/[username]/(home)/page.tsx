@@ -1,15 +1,15 @@
+import { StreamPlayer } from "@/components/stream-player";
 import { getUserByUsername } from "@/lib/user-service";
 import { currentUser } from "@clerk/nextjs/server";
 
 interface CreatorPageProps {
-    params: {
+    params: Promise<{
         username: string;
-    };
+    }>;
 }
 
-const CreatorPage = async ({ 
-    params 
-}: CreatorPageProps) => {
+const CreatorPage = async (props: CreatorPageProps) => {
+    const params = await props.params;
     const externalUser = await currentUser();
     const user = await getUserByUsername(params.username);
 
@@ -19,7 +19,11 @@ const CreatorPage = async ({
 
     return (
         <div className="h-full">
-            Creator Page
+            <StreamPlayer
+                user = {user}
+                stream = {user.stream}
+                isFollowing
+            />
         </div>
     );
 }
