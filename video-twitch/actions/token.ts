@@ -1,7 +1,5 @@
 "use server";
 
-import { ObjectId } from "mongodb";
-
 import { AccessToken } from "livekit-server-sdk";
 import { getSelf } from "@/lib/auth-service";
 import { getUserById } from "@/lib/user-service";
@@ -13,9 +11,10 @@ export const createViewerToken = async (hostIdentity: string) => {
   try {
     self = await getSelf();
   } catch {
-    const id = new ObjectId();
+    // Tạo guest user với string ID thay vì ObjectId
+    const guestId = `guest-${Math.floor(Math.random() * 100000)}`;
     const username = `guest-${Math.floor(Math.random() * 100000)}`;
-    self = { id, username };
+    self = { id: guestId, username };
   }
 
   const host = await getUserById(hostIdentity);
@@ -28,23 +27,34 @@ export const createViewerToken = async (hostIdentity: string) => {
     throw new Error("User is blocked");
   }
 
-  const isHost = self.id === host.id;
+  const isHost = self.id.toString() === host.id.toString();
+
+  // Consistent identity format
+  const viewerIdentity = isHost ? `host-${host.id}` : `viewer-${self.id}`;
+  
+  console.log("=== TOKEN DEBUG ===");
+  console.log("Host ID:", host.id);
+  console.log("Self ID:", self.id);
+  console.log("Is Host:", isHost);
+  console.log("Viewer Identity:", viewerIdentity);
+  console.log("Room Name:", host.id);
 
   const token = new AccessToken(
     process.env.LIVEKIT_API_KEY!,
     process.env.LIVEKIT_API_SECRET!,
     {
-      identity: isHost ? `Host-${self.id}` : self.id.toString(),
+      identity: viewerIdentity,
       name: self.username,
     }
   );
 
   token.addGrant({
-    room: host.id,
+    room: host.id.toString(), // Ensure string
     roomJoin: true,
-    canPublish: false,
+    canPublish: isHost, // Host có thể publish
+    canSubscribe: true, // Tất cả có thể subscribe
     canPublishData: true,
   });
 
-  return await Promise.resolve(token.toJwt());
+  return await token.toJwt();
 };

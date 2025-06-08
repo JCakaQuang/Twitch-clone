@@ -1,31 +1,31 @@
-import { StreamPlayer } from "@/components/stream-player";
-import { getUserByUsername } from "@/lib/user-service";
 import { currentUser } from "@clerk/nextjs/server";
 
+import { getUserByUsername } from "@/lib/user-service";
+import { StreamPlayer } from "@/components/stream-player";
+
 interface CreatorPageProps {
-    params: Promise<{
-        username: string;
-    }>;
+  params: Promise<{
+    username: string;
+  }>;
 }
 
-const CreatorPage = async (props: CreatorPageProps) => {
-    const params = await props.params;
-    const externalUser = await currentUser();
-    const user = await getUserByUsername(params.username);
+export const dynamic = "force-dynamic";
 
-    if (!user || user.externalUserId !== externalUser?.id || !user.stream) {
-        throw new Error("Unauthorized access or user not found");
-    }
+const CreatorPage = async ({ params }: CreatorPageProps) => {
+  const externalUser = await currentUser();
+  const user = await getUserByUsername((await params).username);
 
-    return (
-        <div className="h-full">
-            <StreamPlayer
-                user = {user}
-                stream = {user.stream}
-                isFollowing
-            />
-        </div>
-    );
-}
+  if (!user || user.externalUserId !== externalUser?.id || !user.stream) {
+    throw new Error("Unauthorized");
+  }
+
+  console.log("SSR User Data", user);
+
+  return (
+    <div className="h-full">
+      <StreamPlayer user={user} stream={user.stream} isFollowing />
+    </div>
+  );
+};
 
 export default CreatorPage;
