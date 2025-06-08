@@ -18,10 +18,13 @@ export const onBlock = async (id: string) => {
   let blockedUser;
 
   try {
-    blockedUser = await blockUser(id);
+    const roomName = `user-room-${self.id}`; // tuỳ theo app bạn đặt tên room như thế nào
+
+    await roomService.removeParticipant(roomName, id);
   } catch {
-    // This means user is a guest
+    // This means user is not in the room
   }
+
 
   try {
     await roomService.removeParticipant(self.id, id);

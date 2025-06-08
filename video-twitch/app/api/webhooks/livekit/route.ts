@@ -23,10 +23,17 @@ export async function POST(req: Request) {
 
   try {
     event = await receiver.receive(body, authorization);
-  } catch (err) {
-    console.error("Error parsing webhook:", err);
-    return new Response("Invalid webhook", { status: 400 });
+  } catch (err: any) {
+    if (err.name === "NotBeforeError") {
+      console.warn("Webhook JWT not yet active. Retrying in 1s...");
+      await new Promise((res) => setTimeout(res, 1000));
+      event = await receiver.receive(body, authorization); // retry lần nữa
+    } else {
+      console.error("Error parsing webhook:", err);
+      return new Response("Invalid webhook", { status: 400 });
+    }
   }
+
 
   const ingressId = event.ingressInfo?.ingressId;
   if (!ingressId) {

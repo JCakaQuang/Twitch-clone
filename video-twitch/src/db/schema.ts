@@ -27,6 +27,8 @@ export const blockings = sqliteTable("blockings", {
   id: text("_id").primaryKey(),
   blockerId: text("blockerId").notNull().references(() => users.id),
   blockedId: text("blockedId").notNull().references(() => users.id),
+  createdAt: integer("createdAt", { mode: "timestamp" }).notNull(),
+  updatedAt: integer("updatedAt", { mode: "timestamp" }).notNull(),
 }, (table) => ({
   uniqueBlock: unique().on(table.blockerId, table.blockedId),
 }));

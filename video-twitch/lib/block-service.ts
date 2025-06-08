@@ -112,14 +112,17 @@ export const blockUser = async (id: string) => {
     throw new Error("Already blocked");
   }
 
-  // Tạo bản ghi block
+  // Tạo bản ghi block - Fixed: Added createdAt and updatedAt
   const blockId = randomUUID();
+  const now = new Date();
   const block = await db
     .insert(blockings)
     .values({
       id: blockId,
       blockerId: self.id,
       blockedId: otherUser[0].id,
+      createdAt: now,
+      updatedAt: now,
     })
     .returning({
       id: blockings.id,
@@ -189,18 +192,23 @@ export const unblockUser = async (id: string) => {
   };
 };
 
+// Updated getBlockedUsers function to include imageUrl and other user data
 export const getBlockedUsers = async () => {
   const self = await getSelf();
 
-  // Lấy danh sách người dùng bị block
+  // Lấy danh sách người dùng bị block với thêm thông tin
   const blockedUsers = await db
     .select({
       id: blockings.id,
       blockerId: blockings.blockerId,
       blockedId: blockings.blockedId,
+      createdAt: blockings.createdAt,
+      updatedAt: blockings.updatedAt,
       blocked: {
         id: users.id,
         username: users.username,
+        imageUrl: users.imageUrl, // Add this if it exists in your schema
+        // Add other user fields as needed
       },
     })
     .from(blockings)
@@ -211,10 +219,13 @@ export const getBlockedUsers = async () => {
     id: block.id,
     blockerId: block.blockerId,
     blockedId: block.blockedId,
+    createdAt: block.createdAt,
+    updatedAt: block.updatedAt,
     blocked: block.blocked
       ? {
           id: block.blocked.id,
           username: block.blocked.username,
+          imageUrl: block.blocked.imageUrl,
         }
       : null,
   }));
