@@ -1,19 +1,17 @@
 import { db } from "@/src";
 import { eq, not, exists, and, notInArray } from "drizzle-orm";
-import { follows, users, blockings } from "@/src/db/schema";
+import { follows, users, blockings, streams } from "@/src/db/schema";
 import { getSelf } from "@/lib/auth-service";
 
 export const getFollowedUser = async () => {
   try {
     const self = await getSelf();
 
-    // Lấy danh sách người dùng bị bạn block
     const blockedByYou = await db
       .select({ blockedId: blockings.blockedId })
       .from(blockings)
       .where(eq(blockings.blockerId, self.id));
 
-    // Lấy danh sách người dùng block bạn
     const blockedYou = await db
       .select({ blockerId: blockings.blockerId })
       .from(blockings)
@@ -26,9 +24,11 @@ export const getFollowedUser = async () => {
       .select({
         followId: follows.id,
         followingUser: users,
+        stream: streams,
       })
       .from(follows)
       .innerJoin(users, eq(follows.followingId, users.id))
+      .leftJoin(streams, eq(users.id, streams.userId))
       .where(
         and(
           eq(follows.followerId, self.id),
@@ -36,7 +36,13 @@ export const getFollowedUser = async () => {
         )
       );
 
-    return followedUsers;
+    return followedUsers.map((item) => ({
+      followId: item.followId,
+      followingUser: {
+        ...item.followingUser,
+        stream: item.stream ? { isLive: Boolean(item.stream.isLive) } : null,
+      },
+    }));
   } catch (error) {
     return [];
   }
