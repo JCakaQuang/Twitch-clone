@@ -19,8 +19,7 @@ export const AboutCard = ({
   bio,
   followedByCount,
 }: AboutCardProps) => {
-  const hostAsViewer = `Host-${hostIdentity}`;
-  const isHost = viewerIdentity === hostAsViewer;
+  const isHost = viewerIdentity === `host-${hostIdentity}`;
 
   const followedByLabel = followedByCount === 1 ? "follower" : "followers";
 

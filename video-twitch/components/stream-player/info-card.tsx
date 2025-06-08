@@ -21,9 +21,9 @@ export const InfoCard = ({
   viewerIdentity,
 }: InfoCardProps) => {
   const hostAsViewer = `Host-${hostIdentity}`;
-  const isHost = viewerIdentity === hostAsViewer;
+  const isHost = viewerIdentity === `Host-${hostIdentity}`;
 
-  if (!isHost) return null;
+  // if (!isHost) return null;
 
   return (
     <div className="px-4">
