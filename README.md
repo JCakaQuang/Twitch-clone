@@ -15,7 +15,7 @@ This project was developed for educational purposes in the Software Engineering 
 
 ## Demo
 
-- Deploy URL: nextjs15-twitch-clone-kydf.vercel.app/
+- Deploy URL: https://nextjs15-twitch-clone-kydf.vercel.app/
 - Youtube: https://youtu.be/nZsGRSJNI5U?si=brw6qCoeeaG8-CQj
 - Repo Github: https://github.com/JCakaQuang/Twitch-clone
 
