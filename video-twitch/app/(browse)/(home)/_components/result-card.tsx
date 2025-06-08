@@ -1,17 +1,19 @@
 import Link from "next/link";
+import { InferSelectModel } from "drizzle-orm";
+import { users, streams } from "@/src/db/schema"; // đường dẫn đến schema file của bạn
 
 import { Thumbnail, ThumbnailSkeleton } from "@/components/thumbnail";
 import { Skeleton } from "@/components/ui/skeleton";
 import { LiveBadge } from "@/components/live-badge";
 import { UserAvatar, UserAvatarSkeleton } from "@/components/user-avatar";
 
+// Tạo types từ Drizzle schema
+type User = InferSelectModel<typeof users>;
+type Stream = InferSelectModel<typeof streams>;
+
 interface ResultCardProps {
   data: {
-    user: {
-      id: string;
-      username: string;
-      imageUrl: string;
-    };
+    user: User;
     isLive: boolean;
     title: string;
     thumbnail: string | null;
