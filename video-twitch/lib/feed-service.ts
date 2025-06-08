@@ -1,0 +1,58 @@
+import { db } from "@/src";
+import { getSelf } from "@/lib/auth-service";
+import { eq, desc, and, not, exists } from "drizzle-orm";
+import { streams, users, blockings } from "@/src/db/schema";
+
+export const getStreams = async () => {
+  let userId: string | null = null;
+
+  try {
+    const self = await getSelf();
+    userId = self.id;
+  } catch {
+    userId = null;
+  }
+
+  let result = [];
+
+  if (userId) {
+    result = await db
+      .select({
+        id: streams.id,
+        user: streams.userId,
+        isLive: streams.isLive,
+        title: streams.title,
+        thumbnail: streams.thumbnail,
+      })
+      .from(streams)
+      .where(
+        not(
+          exists(
+            db
+              .select()
+              .from(blockings)
+              .where(
+                and(
+                  eq(blockings.blockedId, userId),
+                  eq(blockings.blockerId, users.id)
+                )
+              )
+          )
+        )
+      )
+      .orderBy(desc(streams.isLive), desc(streams.updatedAt));
+  } else {
+    result = await db
+      .select({
+        id: streams.id,
+        user: streams.userId,
+        isLive: streams.isLive,
+        title: streams.title,
+        thumbnail: streams.thumbnail,
+      })
+      .from(streams)
+      .orderBy(desc(streams.isLive), desc(streams.updatedAt));
+  }
+
+  return result;
+};
