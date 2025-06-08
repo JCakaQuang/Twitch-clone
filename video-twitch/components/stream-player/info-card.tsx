@@ -20,10 +20,9 @@ export const InfoCard = ({
   hostIdentity,
   viewerIdentity,
 }: InfoCardProps) => {
-  const hostAsViewer = `Host-${hostIdentity}`;
-  const isHost = viewerIdentity === `Host-${hostIdentity}`;
+  const isHost = viewerIdentity.toLowerCase() === `host-${hostIdentity}`.toLowerCase();
 
-  // if (!isHost) return null;
+  if (!isHost) return null;
 
   return (
     <div className="px-4">
