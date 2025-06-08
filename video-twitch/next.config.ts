@@ -10,7 +10,11 @@ const nextConfig: NextConfig = {
     });
 
     return config;
-  }
+  },
+
+  images: {
+    domains: ['utfs.io'],
+  },
 };
 
 module.exports = nextConfig;
