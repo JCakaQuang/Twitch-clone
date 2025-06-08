@@ -15,7 +15,7 @@ This project was developed for educational purposes in the Software Engineering 
 
 ## Demo
 
-- [https://youtube.com](https://youtu.be/nZsGRSJNI5U?si=brw6qCoeeaG8-CQj)
+- https://youtu.be/nZsGRSJNI5U?si=brw6qCoeeaG8-CQj
 - https://github.com/JCakaQuang/Twitch-clone
 
 ## Key Features
