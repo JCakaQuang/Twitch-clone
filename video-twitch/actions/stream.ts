@@ -28,6 +28,16 @@ export const updateStream = async (values: Partial<{
       throw new Error("Stream not found");
     }
 
+    // Logic xử lý khi tắt chat thì tắt luôn các mục khác
+    let isChatFollowersOnlyValue = values.isChatFollowersOnly;
+    let isChatDelayedValue = values.isChatDelayed;
+
+    if (values.isChatEnabled === 0) {
+      // Nếu tắt chat -> ép 2 trường còn lại = 0
+      isChatFollowersOnlyValue = 0;
+      isChatDelayedValue = 0;
+    }
+
     const validData = {
       ...(values.thumbnail !== undefined && { thumbnail: values.thumbnail }),
       ...(values.title !== undefined && { title: values.title }),
