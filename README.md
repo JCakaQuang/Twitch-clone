@@ -13,6 +13,11 @@ This project was developed for educational purposes in the Software Engineering 
 
 - [Lê Quang Đạt - 23010201](https://github.com/Lqdat28072005)  
 
+## Demo
+
+- [Video demo]()
+- [Github repository](https://github.com/JCakaQuang/Twitch-clone)
+
 ## Key Features
 
 ### 📡 Streaming using RTMP / WHIP protocols
