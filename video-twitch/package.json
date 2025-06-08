@@ -6,7 +6,8 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "postinstall": "drizzle-kit generate:sqlite"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.19.3",

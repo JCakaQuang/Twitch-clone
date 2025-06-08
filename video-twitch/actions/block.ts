@@ -12,6 +12,8 @@ const roomService = new RoomServiceClient(
   process.env.LIVEKIT_API_SECRET!
 );
 
+
+
 export const onBlock = async (id: string) => {
   const self = await getSelf();
 
