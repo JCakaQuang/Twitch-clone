@@ -142,6 +142,50 @@ This project was developed for educational purposes in the Software Engineering 
 
 - Deploy the application to a production environment to make it accessible to users worldwide. Utilize deployment strategies such as containerization, CI/CD pipelines, and cloud hosting services to ensure scalability, reliability, and security for the streaming platform.
 
+### Data table
+
+**Uers tabel**
+| Column Name     | Type      | Constraints                     |
+|-----------------|-----------|----------------------------------|
+| _id             | TEXT      | PRIMARY KEY                     |
+| email           | TEXT      | NOT NULL, UNIQUE                |
+| username        | TEXT      | NOT NULL, UNIQUE                |
+| imageUrl        | TEXT      | NOT NULL                        |
+| externalUserId  | TEXT      | NOT NULL, UNIQUE                |
+| bio             | TEXT      | NULLABLE                        |
+| createdAt       | TIMESTAMP | NOT NULL                        |
+| updatedAt       | TIMESTAMP | NOT NULL                        |
+
+**follows table**
+| Column Name   | Type      | Constraints                                |
+|---------------|-----------|--------------------------------------------|
+| _id           | TEXT      | PRIMARY KEY                                |
+| followerId    | TEXT      | NOT NULL, FOREIGN KEY → users(_id)         |
+| followingId   | TEXT      | NOT NULL, FOREIGN KEY → users(_id)         |
+| createdAt     | TIMESTAMP | NOT NULL                                   |
+| updatedAt     | TIMESTAMP | NOT NULL                                   |
+| UNIQUE        |           | (followerId, followingId)                  |
+
+**streams table**
+| Column Name         | Type      | Constraints                               |
+|---------------------|-----------|-------------------------------------------|
+| _id                 | TEXT      | PRIMARY KEY                               |
+| title               | TEXT      | NOT NULL                                  |
+| thumbnail           | TEXT      | NULLABLE                                  |
+| ingressId           | TEXT      | UNIQUE                                    |
+| serverUrl           | TEXT      | NULLABLE                                  |
+| streamKey           | TEXT      | NULLABLE                                  |
+| isLive              | INTEGER   | NOT NULL, DEFAULT 0                       |
+| isChatEnabled       | INTEGER   | NOT NULL, DEFAULT 1                       |
+| isChatDelayed       | INTEGER   | NOT NULL, DEFAULT 0                       |
+| isChatFollowersOnly | INTEGER   | NOT NULL, DEFAULT 0                       |
+| userId              | TEXT      | NOT NULL, UNIQUE, FOREIGN KEY → users(_id)|
+| createdAt           | TIMESTAMP | NOT NULL                                  |
+| updatedAt           | TIMESTAMP | NOT NULL                                  |
+
+
+
+
 ## Cloning the repository
 
 ```bash
